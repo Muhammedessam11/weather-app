@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        input {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .weather-info {
+            margin-top: 20px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <input type="text" id="city" placeholder="Enter city name">
+        <button onclick="getWeather()">Get Weather</button>
+        <div class="weather-info" id="weatherInfo"></div>
+    </div>
+
+    <script>
+        async function getWeather() {
+            const city = document.getElementById('city').value;
+            const weatherInfoDiv = document.getElementById('weatherInfo');
+            weatherInfoDiv.innerHTML = '';
+
+            if (city) {
+                try {
+                    const response = await fetch(`/weather?city=${city}`);
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        weatherInfoDiv.innerHTML = `
+                            <h2>${data.city}</h2>
+                            <p>Temperature: ${data.temp}°C</p>
+                            <p>Weather: ${data.description}</p>
+                            <img src="http://openweathermap.org/img/wn/${data.icon}.png" alt="Weather Icon">
+                        `;
+                    } else {
+                        weatherInfoDiv.innerHTML = `<p class="error">${data.error}</p>`;
+                    }
+                } catch (error) {
+                    weatherInfoDiv.innerHTML = `<p class="error">Something went wrong. Please try again later.</p>`;
+                }
+            } else {
+                weatherInfoDiv.innerHTML = `<p class="error">Please enter a city name.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
+
