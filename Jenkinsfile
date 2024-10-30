@@ -1,7 +1,7 @@
 pipeline {
-    agent any
+    agent { label 'JenkinsSlave03' }  // Specify the agent here
     
-     environment {
+    environment {
         DOCKERHUB_CREDENTIALS = credentials('Dockerhub')
     }
     
@@ -16,7 +16,7 @@ pipeline {
         
         stage('Docker Login') {
             steps {
-               sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
         
@@ -28,11 +28,12 @@ pipeline {
             }
         }
         
-        stage('Deploy') {
+        stage('Deploy to Kubernetes') {
             steps {
                 script {
                     sh '''
-                        docker run -d -p 3000:3000 --name weather-app mohamedessam1911/weather-app:latest
+                        kubectl create deployment weather-app --image=mohamedessam1911/weather-app:latest --dry-run=client -o yaml | kubectl apply -f -
+                        kubectl expose deployment weather-app --type=LoadBalancer --port=3000 --target-port=3000
                     '''
                 }
             }
